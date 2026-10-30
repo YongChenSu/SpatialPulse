@@ -1,15 +1,20 @@
-# NEXUS FM — Data Center Digital Twin
+# NEXUS FM — Smart Campus & Facility Digital Twin
 
-以數據中心為情境的 3D 設施管理作品。畫面不是靜態 Dashboard：資產樹、WebGL 建築、樓層狀態與告警共用同一份狀態；Node 服務透過 REST 提供資產資料，並以 WebSocket 推送即時能耗。
+結合 Web GIS 與建築數位孿生的智慧園區設施管理作品。使用 CesiumJS 從園區尺度查看建築、設備與告警，再進入 React Three Fiber 建築場景定位樓層和設備。Node 服務透過 REST 提供園區與資產資料，並以 WebSocket 推送即時能耗。
 
 ## 功能亮點
 
+- CesiumJS 智慧園區 GIS：園區邊界、3D 建築、設備點位與圖層切換
+- 建築狀態驅動的地圖視覺化，以及選取建築後的 Camera fly-to
+- GIS 建築資訊卡可直接進入對應的 3D 數位孿生
 - React Three Fiber 3D 建築：旋轉、縮放、樓層選取、設備標籤與狀態視覺化
 - 樓層樹、3D 場景、右側營運面板三方同步
 - REST API + WebSocket 即時 PUE、功率與冷卻用電
 - 告警確認流程，保留處理歷史而非直接刪除
 - SCSS 設計 token 與桌機、平板、手機三段 RWD
 - Zustand 狀態模組與 Vitest 核心流程測試
+- TanStack Query 管理園區 REST 資料，API 不可用時降級至展示資料
+- Cesium 與 Three.js 依路由 lazy-load，不會同時載入兩套 3D 引擎
 
 ## 本機啟動
 
@@ -24,18 +29,23 @@ npm run server
 npm run dev
 ```
 
-開啟 `http://localhost:5173`。若 API 未啟動，前端會自動切換到本地即時資料模擬，方便單獨展示。
+開啟：
+
+- `http://localhost:5173/gis`：智慧園區 GIS
+- `http://localhost:5173/buildings/a1/twin`：A1 數據中心數位孿生
+
+若 API 未啟動，前端會自動切換到本地即時資料與園區展示資料，方便單獨展示。
 
 ## 架構決策
 
 ```text
-Node REST / WebSocket
-         ↓
-   realtime adapter
-         ↓
-     Zustand store
-      ↙    ↓    ↘
-資產樹   3D 場景   營運面板
+                   React Router
+                 ↙              ↘
+        Cesium 園區 GIS       R3F 建築數位孿生
+                 ↘              ↙
+             TanStack Query + Zustand
+                         ↓
+                Node REST / WebSocket
 ```
 
 即時傳輸集中在 `useRealtime`，未來可替換成 RxJS 或正式 IoT broker 而不影響畫面元件。3D 模型目前由程式化幾何建立，避免作品載入大型 BIM 檔；模型層獨立於營運資料，後續可換成 IFC/GLTF loader。
@@ -47,6 +57,10 @@ Node REST / WebSocket
 | GET | `/api/health` | 服務健康狀態 |
 | GET | `/api/floors` | 樓層與環境摘要 |
 | GET | `/api/telemetry` | 最新營運數據 |
+| GET | `/api/sites` | 可查看的園區列表 |
+| GET | `/api/sites/:siteId` | 園區營運摘要 |
+| GET | `/api/sites/:siteId/buildings` | 園區建築與空間資料 |
+| GET | `/api/buildings/:buildingId` | 建築營運摘要 |
 | WS | `/ws` | 每 3 秒推送即時數據 |
 
 ## 驗證

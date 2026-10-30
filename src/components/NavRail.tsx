@@ -1,21 +1,25 @@
-import { Box, ChartNoAxesCombined, CircleGauge, LayoutDashboard, Settings, ShieldCheck, Zap } from 'lucide-react'
+import { Box, ChartNoAxesCombined, CircleGauge, Map, Settings, ShieldCheck, Zap } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
 
 const items = [
-  { icon: LayoutDashboard, label: '總覽' },
-  { icon: Box, label: '數位孿生', active: true },
+  { icon: Map, label: '園區總覽', path: '/gis' },
+  { icon: Box, label: '數位孿生', path: '/buildings/a1/twin' },
   { icon: Zap, label: '能源' },
   { icon: ChartNoAxesCombined, label: '分析' },
   { icon: ShieldCheck, label: '維運' },
 ]
 
 export function NavRail() {
+  const location = useLocation()
   return (
     <nav className="nav-rail" aria-label="主要導覽">
       <div>
-        {items.map(({ icon: Icon, label, active }) => (
-          <button key={label} className={active ? 'active' : ''} title={label} aria-label={label}>
+        {items.map(({ icon: Icon, label, path }) => path ? (
+          <Link key={label} className={location.pathname === path || (path.includes('twin') && location.pathname.includes('/twin')) ? 'active' : ''} title={label} aria-label={label} to={path}>
             <Icon size={19} /><span>{label}</span>
-          </button>
+          </Link>
+        ) : (
+          <button key={label} title={label} aria-label={label}><Icon size={19} /><span>{label}</span></button>
         ))}
       </div>
       <div>
