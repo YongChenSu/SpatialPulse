@@ -1,7 +1,7 @@
 import {
   Activity, AlertTriangle, Building2, Camera, ChevronRight, CircleDot,
   CloudSun, Database, Eye, Layers3, LocateFixed, MapPin, Radio,
-  Server, Truck, Users, Video, Zap,
+  Satellite, Server, Truck, Users, Video, Zap,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { CampusMap } from '../components/gis/CampusMap'
@@ -23,6 +23,12 @@ const layerOptions: { id: GisLayerId; label: string; icon: typeof Building2; cou
 
 const statusLabel = { normal: '運作正常', warning: '需注意', critical: '嚴重異常', offline: '離線' }
 
+const baseMapSource = {
+  dark: 'OPERATIONS MAP · CARTO / OSM',
+  nlsc: 'REAL-WORLD GIS · NLSC EMAP',
+  orthophoto: 'REAL-WORLD GIS · NLSC PHOTO2',
+}
+
 export function GisPage() {
   useRealtime()
   const { data: campusData } = useCampusData()
@@ -31,6 +37,9 @@ export function GisPage() {
   const selectBuilding = useGisStore((state) => state.setSelectedBuildingId)
   const layers = useGisStore((state) => state.layers)
   const toggleLayer = useGisStore((state) => state.toggleLayer)
+  const baseMap = useGisStore((state) => state.baseMap)
+  const setBaseMap = useGisStore((state) => state.setBaseMap)
+  const focusCampus = useGisStore((state) => state.focusCampus)
   const telemetry = useFacilityStore((state) => state.telemetry)
   const selected = buildings.find((building) => building.id === selectedId)
 
@@ -45,7 +54,7 @@ export function GisPage() {
           <header className="gis-commandbar glass-panel">
             <div><small>SMART CAMPUS COMMAND CENTER</small><h1>{site.name}</h1><span><MapPin size={11} />{site.location}</span></div>
             <div className="gis-commandbar__status"><span><i />即時連線</span><b>{new Date(telemetry.updatedAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}</b></div>
-            <button aria-label="定位園區"><LocateFixed size={17} />定位園區</button>
+            <button aria-label="定位園區" onClick={focusCampus}><LocateFixed size={17} />定位園區</button>
           </header>
 
           <aside className="gis-left-panel glass-panel">
@@ -69,6 +78,15 @@ export function GisPage() {
               {layerOptions.map(({ id, label, icon: Icon, count }) => (
                 <label key={id}><span><Icon size={14} />{label}<em>{count}</em></span><input type="checkbox" checked={layers[id]} onChange={() => toggleLayer(id)} /><i /></label>
               ))}
+            </div>
+            <div className="basemap-section">
+              <div className="subheading"><b>底圖模式</b><span>GIS</span></div>
+              <div className="basemap-options">
+                <button className={baseMap === 'nlsc' ? 'active' : ''} onClick={() => setBaseMap('nlsc')}><MapPin size={14} /><span>臺灣通用地圖</span></button>
+                <button className={baseMap === 'orthophoto' ? 'active' : ''} onClick={() => setBaseMap('orthophoto')}><Satellite size={14} /><span>正射影像</span></button>
+                <button className={baseMap === 'dark' ? 'active' : ''} onClick={() => setBaseMap('dark')}><Layers3 size={14} /><span>營運深色圖</span></button>
+              </div>
+              <p>{baseMap === 'dark' ? '營運模式降低背景干擾' : '圖資：內政部國土測繪中心'}</p>
             </div>
           </aside>
 
@@ -115,6 +133,7 @@ export function GisPage() {
             <div><span className="stat-icon blue"><Server size={16} /></span><p>設備在線率<small>628 / 638</small></p><b>98.4<em>%</em></b></div>
             <div><span className="stat-icon purple"><Eye size={16} /></span><p>今日巡檢<small>已完成 18 項</small></p><b>86<em>%</em></b></div>
           </div>
+          <div className="gis-source-badge">{baseMapSource[baseMap]} <i /> WGS84</div>
         </section>
       </main>
     </div>

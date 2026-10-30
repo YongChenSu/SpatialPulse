@@ -4,7 +4,9 @@ import { useGisStore } from './useGisStore'
 describe('GIS interaction store', () => {
   beforeEach(() => useGisStore.setState({
     selectedBuildingId: null,
-    layers: { buildings: true, alerts: true, cctv: true, environment: true, vehicles: true },
+    baseMap: 'dark',
+    campusFocusRequest: 0,
+    layers: { buildings: true, alerts: true, cctv: false, environment: false, vehicles: false },
   }))
 
   it('keeps the selected map building available to the detail panel', () => {
@@ -14,7 +16,19 @@ describe('GIS interaction store', () => {
 
   it('toggles one map layer without changing the others', () => {
     useGisStore.getState().toggleLayer('cctv')
-    expect(useGisStore.getState().layers.cctv).toBe(false)
+    expect(useGisStore.getState().layers.cctv).toBe(true)
     expect(useGisStore.getState().layers.alerts).toBe(true)
+  })
+
+  it('switches between official and operational base maps', () => {
+    useGisStore.getState().setBaseMap('orthophoto')
+    expect(useGisStore.getState().baseMap).toBe('orthophoto')
+  })
+
+  it('clears building selection when returning to the campus view', () => {
+    useGisStore.setState({ selectedBuildingId: 'a1' })
+    useGisStore.getState().focusCampus()
+    expect(useGisStore.getState().selectedBuildingId).toBeNull()
+    expect(useGisStore.getState().campusFocusRequest).toBe(1)
   })
 })

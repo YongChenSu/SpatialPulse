@@ -1,5 +1,6 @@
 export type BuildingStatus = 'normal' | 'warning' | 'critical' | 'offline'
 export type GisLayerId = 'buildings' | 'alerts' | 'cctv' | 'environment' | 'vehicles'
+export type BaseMapId = 'nlsc' | 'orthophoto' | 'dark'
 
 export interface GeographicPosition {
   longitude: number

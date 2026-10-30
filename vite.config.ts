@@ -10,10 +10,10 @@ export default defineConfig({
     react(),
     viteStaticCopy({
       targets: [
-        { src: 'node_modules/cesium/Build/Cesium/Workers', dest: 'cesium' },
-        { src: 'node_modules/cesium/Build/Cesium/ThirdParty', dest: 'cesium' },
-        { src: 'node_modules/cesium/Build/Cesium/Assets', dest: 'cesium' },
-        { src: 'node_modules/cesium/Build/Cesium/Widgets', dest: 'cesium' },
+        { src: 'node_modules/cesium/Build/Cesium/Workers', dest: 'cesium', rename: { stripBase: 4 } },
+        { src: 'node_modules/cesium/Build/Cesium/ThirdParty', dest: 'cesium', rename: { stripBase: 4 } },
+        { src: 'node_modules/cesium/Build/Cesium/Assets', dest: 'cesium', rename: { stripBase: 4 } },
+        { src: 'node_modules/cesium/Build/Cesium/Widgets', dest: 'cesium', rename: { stripBase: 4 } },
       ],
     }),
   ],
@@ -28,5 +28,6 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     globals: true,
+    exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
   },
 })

@@ -5,6 +5,8 @@
 ## 功能亮點
 
 - CesiumJS 智慧園區 GIS：園區邊界、3D 建築、設備點位與圖層切換
+- 國土測繪中心 WMTS：臺灣通用電子地圖、正射影像與資料來源標示
+- 依建築群 BoundingSphere 自動定位園區，適應不同螢幕比例
 - 建築狀態驅動的地圖視覺化，以及選取建築後的 Camera fly-to
 - GIS 建築資訊卡可直接進入對應的 3D 數位孿生
 - React Three Fiber 3D 建築：旋轉、縮放、樓層選取、設備標籤與狀態視覺化
@@ -63,9 +65,22 @@ npm run dev
 | GET | `/api/buildings/:buildingId` | 建築營運摘要 |
 | WS | `/ws` | 每 3 秒推送即時數據 |
 
+## GIS 資料來源
+
+| 圖層 | 來源 | 類型 |
+| --- | --- | --- |
+| 臺灣通用電子地圖 | 內政部國土測繪中心 WMTS `EMAP` | 真實公開圖資 |
+| 正射影像 | 內政部國土測繪中心 WMTS `PHOTO2` | 真實公開圖資 |
+| 深色營運底圖 | OpenStreetMap / CARTO | 真實公開圖資 |
+| 示範建築、設備與告警 | SpatialPulse scenario dataset | 模擬資料 |
+
+介面會區分真實公開資料與 Demo 模擬資料，不將示範 IoT 數值宣稱為特定建築的真實營運資料。
+
 ## 驗證
 
 ```bash
 npm run test
+npm run test:e2e
+npm run lint
 npm run build
 ```
