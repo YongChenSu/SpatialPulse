@@ -2,7 +2,7 @@
 
 | 項目 | 內容 |
 | --- | --- |
-| 文件日期 | 2026-10-30 |
+| 文件日期 | 2026-10-31 |
 | 目前分支 | `feat/smart-campus-gis` |
 | 專案定位 | 智慧園區 GIS、3D 建築數位孿生與設施營運平台 |
 | 作品目標 | Blog 主力作品集、Web GIS／前端工程職缺展示 |
@@ -47,7 +47,8 @@ GIS 視覺方向採用以下參考組合：
 ### 2.2 園區 GIS
 
 - `/gis` CesiumJS 園區營運頁面。
-- 園區邊界、建築、告警、CCTV、環境站與巡檢車圖層。
+- 數位孿生與設施頁保留 Demo 建築、告警、CCTV、環境站與巡檢車資料。
+- GIS 頁已與上述 Demo 資料解耦，只呈現官方城市圖資。
 - 建築選取、Camera fly-to、資訊卡與進入數位孿生路由。
 - 依建築群 BoundingSphere 自動定位園區。
 - Zustand 管理選取建築、底圖與圖層狀態。
@@ -57,8 +58,9 @@ GIS 視覺方向採用以下參考組合：
 ### 2.3 GIS 公開圖資
 
 - 已驗證國土測繪中心 NLSC WMTS capabilities。
-- 已接入 `EMAP` 臺灣通用電子地圖。
+- 已接入 `EMAP16` 無等高線及門牌的臺灣通用電子地圖。
 - 已接入 `PHOTO2` 正射影像。
+- 已完成臺北市三維產權建物 I3S 的可切換 POC。
 - 介面會標示圖資來源。
 - 已區分真實公開底圖與 Demo 模擬建築／IoT 資料。
 
@@ -68,7 +70,7 @@ GIS 視覺方向採用以下參考組合：
 - WebSocket 每三秒推送即時營運數據。
 - API 無法使用時可降級至本地展示資料。
 - Cesium 與 React Three Fiber 依路由 lazy-load。
-- Vitest 單元測試目前 6 項通過。
+- Vitest 單元測試目前 16 項通過。
 - Playwright GIS 瀏覽器測試目前 1 項通過。
 - ESLint 與 production build 通過。
 - 已修正 Cesium Assets／Workers 靜態資源路徑造成的 rendering stopped 錯誤。
@@ -79,19 +81,20 @@ GIS 視覺方向採用以下參考組合：
 | --- | --- | --- |
 | NLSC 電子地圖 | 真實公開資料 | 官方 WMTS |
 | NLSC 正射影像 | 真實公開資料 | 官方 WMTS |
+| 臺北市三維產權建物 | 真實公開資料 | 官方 I3S；目前為可選圖層 |
 | 園區範圍 | Demo 模擬資料 | 放置於臺北南港真實座標 |
-| 建築位置與長寬高 | Demo 模擬資料 | 目前以 Cesium Box 呈現 |
+| 建築位置與長寬高 | Demo 模擬資料 | 已從 GIS 城市場景移除；只保留於既有產品 Demo 資料 |
 | 建築名稱與用途 | Demo 模擬資料 | A1、A2、B1、C1、P1 |
 | 能耗、健康度與告警 | Demo 模擬資料 | 不代表現場真實營運狀況 |
-| CCTV、環境站、巡檢車 | Demo 模擬資料 | 用於展示 GIS 圖層與互動 |
+| CCTV、環境站、巡檢車 | Demo 模擬資料 | 暫不顯示於 GIS；待真實建物 mapping 後再接入 |
 
 目前不可將建築尺寸或營運值描述成真實南港建築資料。
 
 ## 4. 已知問題
 
-### 4.1 CARTO 底圖已不可使用
+### 4.1 CARTO 底圖已不可使用（已處理）
 
-目前程式中的 CARTO dark tiles 會回傳 `API KEY REQUIRED` 占位圖。該回應可能仍是 HTTP 200，因此既有 Playwright network assertion 無法發現問題。
+CARTO dark tiles 會回傳 `API KEY REQUIRED` 占位圖。該回應可能仍是 HTTP 200，因此原本的 Playwright network assertion 無法發現問題。2026-10-31 已從程式移除 CARTO，並加入禁止 CARTO request 的 E2E assertion。
 
 處理決策：
 
@@ -99,15 +102,15 @@ GIS 視覺方向採用以下參考組合：
 - 不再依賴未設定金鑰的第三方底圖作為預設畫面。
 - E2E 除了 HTTP status，還要驗證禁止的 provider request 或底圖狀態。
 
-### 4.2 真實底圖會暴露 Demo 建築錯位
+### 4.2 真實底圖會暴露 Demo 建築錯位（已處理）
 
-目前五棟 Cesium Box 並非依真實建築輪廓建立。電子地圖或正射影像資訊越詳細，模型與真實建物的錯位越明顯。
+原本五棟 Cesium Box 並非依真實建築輪廓建立。電子地圖或正射影像資訊越詳細，模型與真實建物的錯位越明顯，因此已從 GIS 城市場景與圖層選單移除。
 
 處理決策：
 
 - 預設營運模式不使用外部 raster imagery。
-- 真實地理底圖改成分析模式。
-- 在導入官方建築模型前，不宣稱 Box 為真實建築。
+- 真實地理底圖作為位置與影像查核模式。
+- 城市 3D 建物只使用具可追溯來源的官方 I3S／3D Tiles。
 
 ### 4.3 舊品牌名稱仍存在
 
@@ -118,7 +121,7 @@ README、`package.json` 與部分介面仍有 `NEXUS FM` 或 `nexus-fm-digital-t
 底圖模式定義為：
 
 ```ts
-type BaseMapId = 'operations' | 'context' | 'orthophoto'
+type BaseMapId = 'neutral' | 'context' | 'orthophoto'
 ```
 
 ### 5.1 Operations／園區營運模式
@@ -144,8 +147,8 @@ type BaseMapId = 'operations' | 'context' | 'orthophoto'
 
 ### 5.4 Provider 行為
 
-- 將 provider 設定移出 `CampusMap.tsx`。
-- 官方圖資載入失敗時自動回到 `operations`。
+- 將 provider 設定移出 `CityScene.tsx`。
+- 官方圖資載入失敗時自動回到 `neutral`。
 - 畫面顯示目前 provider、資料來源與真實性。
 - 切換底圖不得重建 Cesium Viewer。
 
@@ -229,14 +232,14 @@ buildingHeight = max(featureTop) - min(樓地板高)
 
 ### Phase 1：底圖重構
 
-- [ ] 將 `BaseMapId` 改為 `operations | context | orthophoto`。
-- [ ] 刪除 CARTO provider。
-- [ ] 建立獨立 basemap provider 設定模組。
-- [ ] `operations` 不建立 ImageryLayer。
-- [ ] `context` 改用 NLSC `EMAP16`。
-- [ ] `orthophoto` 保留 NLSC `PHOTO2`。
-- [ ] 加入 provider error fallback。
-- [ ] 更新底圖選單、來源標示與測試。
+- [x] 將 `BaseMapId` 改為 `neutral | context | orthophoto`。
+- [x] 刪除 CARTO provider。
+- [x] 建立獨立 basemap provider 設定模組。
+- [x] `neutral` 不建立 ImageryLayer。
+- [x] `context` 改用 NLSC `EMAP16`。
+- [x] `orthophoto` 保留 NLSC `PHOTO2`。
+- [x] 加入 provider error fallback。
+- [x] 更新底圖選單、來源標示與測試。
 
 驗收條件：
 
@@ -246,15 +249,15 @@ buildingHeight = max(featureTop) - min(樓地板高)
 
 ### Phase 2：臺北市 I3S POC
 
-- [ ] 建立 `TaipeiBuildingsLayer` 或對應 hook／service。
-- [ ] 使用 `I3SDataProvider.fromUrl()` 載入官方 layer 0。
-- [ ] 設定 `showFeatures: true` 以支援 feature picking。
-- [ ] 關閉官方多色 symbology，改成低干擾青灰材質。
-- [ ] 限制 initial camera 在南港，觀察可見範圍串流效能。
-- [ ] 驗證完整瀏覽器渲染，而不只 metadata parsing。
+- [x] 建立 `TaipeiBuildingsLayer` 或對應 hook／service。
+- [x] 使用 `I3SDataProvider.fromUrl()` 載入官方 layer 0。
+- [x] 設定 `showFeatures: true` 以支援 feature picking。
+- [x] 關閉官方多色 symbology，改成低干擾青灰材質。
+- [x] 限制 initial camera 在南港，觀察可見範圍串流效能。
+- [x] 驗證完整瀏覽器渲染，而不只 metadata parsing。
 - [ ] 驗證點擊 feature 可取得安全欄位。
 - [ ] 檢查 EGM96 與 Cesium ellipsoid 高度偏移。
-- [ ] 建立 loading、timeout、error 與 retry UI。
+- [x] 建立 loading、timeout、error 與 retry UI。
 
 驗收條件：
 
@@ -262,7 +265,19 @@ buildingHeight = max(featureTop) - min(樓地板高)
 - 點擊建築可取得樓層、高度來源、用途及建材。
 - 地圖操作期間無 console error、Cesium error panel 或明顯記憶體問題。
 
-### Phase 3：以官方模型取代 Demo Box
+### Phase 3：完成城市圖層視覺系統
+
+- [x] 從 GIS 場景與圖層選單移除 Demo Box。
+- [x] 將 `CampusMap` 改為 `CityScene`，移除 Demo 邊界與設備點位依賴。
+- [x] 預設顯示 NLSC 地理底圖與臺北市官方 I3S。
+- [x] 建立城市 Layer Catalog 與南港相機 preset。
+- [x] 建立 `CesiumLayerManager` 與官方建物 runtime。
+- [x] 定義城市、街廓與建物尺度的相機高度及 I3S LOD 規則。
+- [ ] 完成低干擾底圖、官方建物中性色與選取高亮。
+- [ ] 依相機高度控制地標、建物與營運標籤密度。
+- [ ] 完成真實資料來源、載入錯誤與 fallback 呈現。
+
+### Phase 4：以官方模型建立真實建物 mapping
 
 - [ ] 抽樣驗證 `建物門牌 + 棟次` 分組規則。
 - [ ] 定義官方 feature 與 SpatialPulse Building 的 mapping。
@@ -271,7 +286,7 @@ buildingHeight = max(featureTop) - min(樓地板高)
 - [ ] 只將少數目標建築綁定模擬營運資料。
 - [ ] 周邊官方建築維持中性色。
 - [ ] 只有選取、警告與嚴重異常建築使用狀態強調。
-- [ ] 驗證完成後移除或降級目前 Cesium Box。
+- [x] 移除目前 Cesium Box，避免與官方建物同時存在。
 
 建議資料結構：
 
@@ -285,7 +300,7 @@ interface BuildingGeometryMetadata {
 }
 ```
 
-### Phase 4：GIS 使用者體驗
+### Phase 5：GIS 使用者體驗
 
 - [ ] 城市尺度只顯示園區名稱與主要場域。
 - [ ] 園區尺度顯示建築名稱、狀態與重大告警數。
@@ -294,7 +309,7 @@ interface BuildingGeometryMetadata {
 - [ ] 建立 hover、selected、warning、critical 四種視覺狀態。
 - [ ] 讓狀態色集中在輪廓、光暈或標記，避免整座城市過度著色。
 
-### Phase 5：品牌與文件整理
+### Phase 6：品牌與文件整理
 
 - [ ] 將 README 標題改為 SpatialPulse。
 - [ ] 更新 `package.json` package name。
@@ -344,4 +359,4 @@ interface BuildingGeometryMetadata {
 清楚標示官方幾何與模擬營運資料
 ```
 
-達成以上條件後，才開始以官方建築取代現有 Demo Box，避免在資料分組與高度定義尚未驗證前過早重寫主場景。
+達成以上條件後，才開始把營運資料 mapping 到官方建築，避免在 feature 識別、資料分組與高度定義尚未驗證前過早重寫主場景。

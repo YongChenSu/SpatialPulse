@@ -1,6 +1,8 @@
 export type BuildingStatus = 'normal' | 'warning' | 'critical' | 'offline'
-export type GisLayerId = 'buildings' | 'alerts' | 'cctv' | 'environment' | 'vehicles'
-export type BaseMapId = 'nlsc' | 'orthophoto' | 'dark'
+export type GisLayerId = 'officialBuildings'
+export type BaseMapId = 'neutral' | 'context' | 'orthophoto'
+export type OfficialBuildingsStatus = 'idle' | 'loading' | 'ready' | 'error'
+export type CameraScale = 'city' | 'district' | 'building'
 
 export interface GeographicPosition {
   longitude: number
@@ -43,4 +45,17 @@ export interface MapAsset {
   name: string
   position: GeographicPosition
   status: BuildingStatus
+}
+
+export interface OfficialBuildingSelection {
+  objectId: string | null
+  address: string | null
+  floor: string | null
+  floorCount: number | null
+  floorElevation: number | null
+  floorHeight: number | null
+  heightSource: string | null
+  usage: string | null
+  material: string | null
+  completedAt: string | null
 }

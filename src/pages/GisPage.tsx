@@ -1,47 +1,27 @@
 import {
-  Activity, AlertTriangle, Building2, Camera, ChevronRight, CircleDot,
-  CloudSun, Database, Eye, Layers3, LocateFixed, MapPin, Radio,
-  Satellite, Server, Truck, Users, Video, Zap,
+  Building2, Database, Info, Layers3, LocateFixed, Map, MapPin,
+  MousePointer2, Satellite,
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { CampusMap } from '../components/gis/CampusMap'
 import { Header } from '../components/Header'
 import { NavRail } from '../components/NavRail'
-import { useCampusData } from '../hooks/useCampusData'
-import { useRealtime } from '../hooks/useRealtime'
-import { useFacilityStore } from '../store/useFacilityStore'
-import { useGisStore } from '../store/useGisStore'
-import type { GisLayerId } from '../types/gis'
-
-const layerOptions: { id: GisLayerId; label: string; icon: typeof Building2; count: number }[] = [
-  { id: 'buildings', label: '3D 建築', icon: Building2, count: 5 },
-  { id: 'alerts', label: '告警熱點', icon: AlertTriangle, count: 6 },
-  { id: 'cctv', label: 'CCTV', icon: Video, count: 24 },
-  { id: 'environment', label: '環境站', icon: CloudSun, count: 8 },
-  { id: 'vehicles', label: '巡檢車', icon: Truck, count: 3 },
-]
-
-const statusLabel = { normal: '運作正常', warning: '需注意', critical: '嚴重異常', offline: '離線' }
-
-const baseMapSource = {
-  dark: 'OPERATIONS MAP · CARTO / OSM',
-  nlsc: 'REAL-WORLD GIS · NLSC EMAP',
-  orthophoto: 'REAL-WORLD GIS · NLSC PHOTO2',
-}
+import { baseMapMetadata } from '../features/gis/catalog/basemaps'
+import { cityLayerCatalog } from '../features/gis/catalog/layerCatalog'
+import { CityScene } from '../features/gis/scene/CityScene'
+import { useCitySceneStore } from '../features/gis/store/useCitySceneStore'
 
 export function GisPage() {
-  useRealtime()
-  const { data: campusData } = useCampusData()
-  const { site, buildings } = campusData
-  const selectedId = useGisStore((state) => state.selectedBuildingId)
-  const selectBuilding = useGisStore((state) => state.setSelectedBuildingId)
-  const layers = useGisStore((state) => state.layers)
-  const toggleLayer = useGisStore((state) => state.toggleLayer)
-  const baseMap = useGisStore((state) => state.baseMap)
-  const setBaseMap = useGisStore((state) => state.setBaseMap)
-  const focusCampus = useGisStore((state) => state.focusCampus)
-  const telemetry = useFacilityStore((state) => state.telemetry)
-  const selected = buildings.find((building) => building.id === selectedId)
+  const layers = useCitySceneStore((state) => state.layers)
+  const toggleLayer = useCitySceneStore((state) => state.toggleLayer)
+  const baseMap = useCitySceneStore((state) => state.baseMap)
+  const setBaseMap = useCitySceneStore((state) => state.setBaseMap)
+  const baseMapError = useCitySceneStore((state) => state.baseMapError)
+  const officialBuildingsStatus = useCitySceneStore((state) => state.officialBuildingsStatus)
+  const officialBuildingsError = useCitySceneStore((state) => state.officialBuildingsError)
+  const retryOfficialBuildings = useCitySceneStore((state) => state.retryOfficialBuildings)
+  const selectedOfficial = useCitySceneStore((state) => state.selectedOfficialBuilding)
+  const selectOfficialBuilding = useCitySceneStore((state) => state.setSelectedOfficialBuilding)
+  const focusArea = useCitySceneStore((state) => state.focusArea)
+  const cameraScale = useCitySceneStore((state) => state.cameraScale)
 
   return (
     <div className="app-shell gis-shell">
@@ -49,97 +29,129 @@ export function GisPage() {
       <NavRail />
       <main className="gis-main">
         <section className="gis-viewport">
-          <CampusMap />
+          <CityScene />
 
           <header className="gis-commandbar glass-panel">
-            <div><small>SMART CAMPUS COMMAND CENTER</small><h1>{site.name}</h1><span><MapPin size={11} />{site.location}</span></div>
-            <div className="gis-commandbar__status"><span><i />即時連線</span><b>{new Date(telemetry.updatedAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}</b></div>
-            <button aria-label="定位園區" onClick={focusCampus}><LocateFixed size={17} />定位園區</button>
+            <div>
+              <small>TAIPEI 3D CITY SCENE</small>
+              <h1>臺北市三維建物場景</h1>
+              <span><MapPin size={11} />南港區 · 官方公開圖資</span>
+            </div>
+            <div className={`gis-commandbar__status ${officialBuildingsStatus}`}>
+              <span><i />{formatLayerStatus(officialBuildingsStatus)}</span>
+              <b>{formatCameraScale(cameraScale)} · TAIPEI CITY I3S</b>
+            </div>
+            <button aria-label="定位南港" onClick={focusArea}><LocateFixed size={17} />定位南港</button>
           </header>
 
           <aside className="gis-left-panel glass-panel">
-            <div className="gis-panel-heading"><div><small>SITE EXPLORER</small><h2>園區資產</h2></div><Layers3 size={18} /></div>
-            <div className="site-overview">
+            <div className="gis-panel-heading">
+              <div><small>CITY LAYERS</small><h2>城市圖層</h2></div>
+              <Layers3 size={18} />
+            </div>
+            <div className="site-overview city-dataset-overview">
               <div className="site-overview__icon"><Building2 size={20} /></div>
-              <div><b>{site.name}</b><span>{site.area.toLocaleString()} m² · {site.buildingCount} 棟建築</span></div>
-              <em>{site.onlineRate}%</em>
+              <div><b>臺北市三維產權建物</b><span>官方 I3S Scene Layer</span></div>
+              <em>REAL</em>
             </div>
-            <div className="building-list">
-              {buildings.map((building) => (
-                <button key={building.id} className={selectedId === building.id ? 'active' : ''} onClick={() => selectBuilding(building.id)}>
-                  <i className={`building-status building-status--${building.status}`} />
-                  <span><b>{building.name}</b><small>{building.type} · {building.floors}F</small></span>
-                  <em>{building.healthScore}</em><ChevronRight size={13} />
-                </button>
+            <div className="layer-section city-layer-section">
+              <div className="subheading"><b>建物與內容</b><span>{Object.values(layers).filter(Boolean).length}/{cityLayerCatalog.length}</span></div>
+              {cityLayerCatalog.map(({ id, label, icon: Icon, badge }) => (
+                <label key={id}>
+                  <span><Icon size={14} />{label}<em>{badge}</em></span>
+                  <input type="checkbox" checked={layers[id]} onChange={() => toggleLayer(id)} />
+                  <i />
+                </label>
               ))}
-            </div>
-            <div className="layer-section">
-              <div className="subheading"><b>顯示圖層</b><span>{Object.values(layers).filter(Boolean).length}/{layerOptions.length}</span></div>
-              {layerOptions.map(({ id, label, icon: Icon, count }) => (
-                <label key={id}><span><Icon size={14} />{label}<em>{count}</em></span><input type="checkbox" checked={layers[id]} onChange={() => toggleLayer(id)} /><i /></label>
-              ))}
+              {officialBuildingsStatus !== 'idle' && (
+                <div className={`official-layer-status ${officialBuildingsStatus}`}>
+                  <span>
+                    {officialBuildingsStatus === 'loading' && '官方三維建物載入中…'}
+                    {officialBuildingsStatus === 'ready' && '臺北市官方 I3S 已載入'}
+                    {officialBuildingsStatus === 'error' && (officialBuildingsError ?? '官方模型載入失敗')}
+                  </span>
+                  {officialBuildingsStatus === 'error' && <button type="button" onClick={retryOfficialBuildings}>重新載入</button>}
+                </div>
+              )}
             </div>
             <div className="basemap-section">
-              <div className="subheading"><b>底圖模式</b><span>GIS</span></div>
+              <div className="subheading"><b>底圖模式</b><span>BASE</span></div>
               <div className="basemap-options">
-                <button className={baseMap === 'nlsc' ? 'active' : ''} onClick={() => setBaseMap('nlsc')}><MapPin size={14} /><span>臺灣通用地圖</span></button>
+                <button className={baseMap === 'neutral' ? 'active' : ''} onClick={() => setBaseMap('neutral')}><Layers3 size={14} /><span>中性城市圖</span></button>
+                <button className={baseMap === 'context' ? 'active' : ''} onClick={() => setBaseMap('context')}><Map size={14} /><span>地理位置圖</span></button>
                 <button className={baseMap === 'orthophoto' ? 'active' : ''} onClick={() => setBaseMap('orthophoto')}><Satellite size={14} /><span>正射影像</span></button>
-                <button className={baseMap === 'dark' ? 'active' : ''} onClick={() => setBaseMap('dark')}><Layers3 size={14} /><span>營運深色圖</span></button>
               </div>
-              <p>{baseMap === 'dark' ? '營運模式降低背景干擾' : '圖資：內政部國土測繪中心'}</p>
+              <p className={baseMapError ? 'error' : ''}>{baseMapError ?? baseMapMetadata[baseMap].description}</p>
             </div>
+            <div className="city-data-note"><Info size={13} /><p>本頁只呈現可追溯的真實城市圖資。營運 Demo 點位待完成建物 mapping 後再接入。</p></div>
           </aside>
 
-          <aside className="gis-right-panel">
-            {selected ? (
-              <section className="glass-panel building-detail">
+          <aside className="gis-right-panel city-right-panel">
+            {selectedOfficial ? (
+              <section className="glass-panel official-building-detail">
                 <div className="detail-hero">
-                  <span className={`detail-status detail-status--${selected.status}`}><i />{statusLabel[selected.status]}</span>
-                  <button onClick={() => selectBuilding(null)} aria-label="關閉建築資訊">×</button>
-                  <small>{selected.type}</small><h2>{selected.name}</h2>
-                  <p><MapPin size={11} />{site.name}</p>
+                  <span className="detail-status"><i />官方三維建物</span>
+                  <button onClick={() => selectOfficialBuilding(null)} aria-label="關閉官方建物資訊">×</button>
+                  <small>TAIPEI CITY I3S</small><h2>{selectedOfficial.address ?? '未提供門牌'}</h2>
+                  <p><MapPin size={11} />臺北市政府三維產權模型</p>
                 </div>
-                <div className="health-row"><div className={`mini-gauge mini-gauge--${selected.status}`}><strong>{selected.healthScore}</strong><span>健康評分</span></div><div><span>設備在線率<b>{selected.onlineRate}%</b></span><span>未處理告警<b className={selected.openAlerts ? 'danger' : ''}>{selected.openAlerts}</b></span></div></div>
-                <div className="building-kpis">
-                  <div><Zap size={14} /><span>即時功率</span><b>{selected.id === 'a1' ? telemetry.power : selected.power}<em>kW</em></b></div>
-                  <div><Database size={14} /><span>今日能源</span><b>{selected.todayEnergy.toLocaleString()}<em>kWh</em></b></div>
-                </div>
-                <Link className="enter-twin" to={`/buildings/${selected.id}/twin`}><BoxIcon />進入 3D 數位孿生<ChevronRight size={15} /></Link>
+                <dl className="official-building-fields">
+                  <div><dt>樓層</dt><dd>{selectedOfficial.floor ?? '—'} / 共 {selectedOfficial.floorCount ?? '—'} 層</dd></div>
+                  <div><dt>樓地板高</dt><dd>{formatMeters(selectedOfficial.floorElevation)}</dd></div>
+                  <div><dt>樓層高度</dt><dd>{formatMeters(selectedOfficial.floorHeight)}</dd></div>
+                  <div><dt>高度來源</dt><dd>{selectedOfficial.heightSource ?? '—'}</dd></div>
+                  <div><dt>主要用途</dt><dd>{selectedOfficial.usage ?? '—'}</dd></div>
+                  <div><dt>主要建材</dt><dd>{selectedOfficial.material ?? '—'}</dd></div>
+                </dl>
+                <p className="official-data-note">官方建築資料 · 尚未綁定營運數據</p>
               </section>
             ) : (
-              <section className="glass-panel operation-summary">
-                <div className="gis-panel-heading"><div><small>LIVE OPERATION</small><h2>園區營運摘要</h2></div><span className="gis-live"><i />LIVE</span></div>
-                <div className="operation-score"><div className="campus-gauge"><strong>91</strong><span>園區健康度</span></div><div><b>整體運作良好</b><p>5 棟建築，638 台設備</p><small>較上週提升 1.8%</small></div></div>
-                <div className="operation-grid">
-                  <div><Zap size={15} /><span>園區用電</span><b>{(telemetry.power + 2366).toLocaleString()}<em>kW</em></b></div>
-                  <div><Radio size={15} /><span>設備在線</span><b>98.4<em>%</em></b></div>
-                  <div><Users size={15} /><span>園區人數</span><b>1,284<em>人</em></b></div>
-                  <div><Camera size={15} /><span>CCTV</span><b>24<em>/ 24</em></b></div>
+              <section className="glass-panel city-scene-guide">
+                <div className="gis-panel-heading"><div><small>SCENE GUIDE</small><h2>城市場景導覽</h2></div><MousePointer2 size={17} /></div>
+                <div className="city-scene-guide__body">
+                  <Building2 size={24} />
+                  <h3>選取一棟官方建物</h3>
+                  <p>點擊模型即可查看門牌、樓層、用途與建材等公開欄位。</p>
                 </div>
+                <ul>
+                  <li><i />建物幾何：臺北市官方 I3S</li>
+                  <li><i />底圖：內政部國土測繪中心</li>
+                  <li><i />目前視角：{formatCameraScale(cameraScale)}</li>
+                  <li className="pending"><i />營運資料：尚未建立 mapping</li>
+                </ul>
               </section>
             )}
 
-            <section className="glass-panel gis-alerts">
-              <div className="gis-panel-heading"><div><small>ACTIVE INCIDENTS</small><h2>即時事件</h2></div><button>全部 6</button></div>
-              <article onClick={() => selectBuilding('c1')}><span className="incident-icon critical"><AlertTriangle size={15} /></span><div><b>C1 智慧工廠</b><p>產線 02 即時能耗超過上限</p><small>1 分鐘前 · 嚴重</small></div><ChevronRight size={14} /></article>
-              <article onClick={() => selectBuilding('a1')}><span className="incident-icon warning"><Activity size={15} /></span><div><b>A1 數據中心</b><p>CRAC-03 回風溫度過高</p><small>3 分鐘前 · 警告</small></div><ChevronRight size={14} /></article>
-              <article><span className="incident-icon info"><CircleDot size={15} /></span><div><b>北側入口</b><p>訪客車輛已進入園區</p><small>8 分鐘前 · 通知</small></div><ChevronRight size={14} /></article>
+            <section className="glass-panel city-source-card">
+              <div className="gis-panel-heading"><div><small>DATA PROVENANCE</small><h2>資料來源</h2></div><Database size={17} /></div>
+              <dl>
+                <div><dt>三維建物</dt><dd>臺北市政府</dd></div>
+                <div><dt>電子地圖</dt><dd>內政部國土測繪中心</dd></div>
+                <div><dt>座標系統</dt><dd>WGS84</dd></div>
+              </dl>
             </section>
           </aside>
 
-          <div className="gis-bottom-stats glass-panel">
-            <div><span className="stat-icon teal"><Building2 size={16} /></span><p>建築狀態<small>正常運作</small></p><b>3<em>/ 5</em></b></div>
-            <div><span className="stat-icon amber"><AlertTriangle size={16} /></span><p>未處理告警<small>2 件嚴重</small></p><b>6</b></div>
-            <div><span className="stat-icon blue"><Server size={16} /></span><p>設備在線率<small>628 / 638</small></p><b>98.4<em>%</em></b></div>
-            <div><span className="stat-icon purple"><Eye size={16} /></span><p>今日巡檢<small>已完成 18 項</small></p><b>86<em>%</em></b></div>
-          </div>
-          <div className="gis-source-badge">{baseMapSource[baseMap]} <i /> WGS84</div>
+          <div className="gis-source-badge city-source-badge">{baseMapMetadata[baseMap].source} <i /> WGS84</div>
         </section>
       </main>
     </div>
   )
 }
 
-function BoxIcon() {
-  return <span className="box-icon"><span /><span /><span /></span>
+function formatLayerStatus(status: 'idle' | 'loading' | 'ready' | 'error') {
+  if (status === 'ready') return '官方建物已就緒'
+  if (status === 'loading') return '官方建物載入中'
+  if (status === 'error') return '官方建物載入異常'
+  return '等待載入'
+}
+
+function formatCameraScale(scale: 'city' | 'district' | 'building') {
+  if (scale === 'city') return '城市尺度'
+  if (scale === 'building') return '建物尺度'
+  return '街廓尺度'
+}
+
+function formatMeters(value: number | null) {
+  return value === null ? '—' : `${value.toFixed(2)} m`
 }
