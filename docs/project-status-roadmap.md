@@ -160,7 +160,7 @@ type BaseMapId = 'neutral' | 'context' | 'orthophoto'
 
 ```text
 https://3d.land.gov.taipei/arcgis/rest/services/Hosted/
-CadastralBuilding_2023/SceneServer/layers/0
+CB_2025_20250825/SceneServer/layers/0
 ```
 
 驗證結果：
@@ -172,9 +172,12 @@ CadastralBuilding_2023/SceneServer/layers/0
 - 垂直基準為 EGM96 Geoid。
 - 高度單位為公尺。
 - 提供 `View` 與 `Query` capability。
-- 涵蓋目前南港示範座標。
-- I3S layer version 為 1.9。
+- 涵蓋完整臺北市範圍與目前南港示範座標。
+- I3S layer version 為 1.10。
+- 官方服務更新時間為 2025-08-25。
+- 欄位數為 32，包含拆分後的建號母號、建號子號與資料追蹤欄位。
 - 目前安裝的 Cesium 1.146 可成功建立 `I3SDataProvider` 並解析 metadata。
+- 本專案只使用此資料集，不設定舊版 SceneServer fallback；失敗時顯示 error／retry UI。
 
 主要欄位：
 

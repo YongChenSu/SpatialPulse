@@ -10,7 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "gis:inventory": "node scripts/gis/inventory-i3s.mjs",
+    "gis:download": "node scripts/gis/download-i3s.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.6",

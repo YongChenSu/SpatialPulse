@@ -18,10 +18,10 @@ export const cityLayerCatalog: readonly CityLayerDefinition[] = [
   {
     id: 'officialBuildings',
     label: '臺北官方建物',
-    description: '臺北市三維產權建物 Scene Layer',
+    description: '臺北市 2025 三維產權建物 Scene Layer',
     group: 'official',
     sourceType: 'i3s',
-    source: '臺北市政府',
+    source: '臺北市政府 · CB_2025_20250825',
     defaultVisible: true,
     loadOnDemand: false,
     icon: Building2,

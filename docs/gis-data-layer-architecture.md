@@ -2,7 +2,7 @@
 
 | 項目 | 內容 |
 | --- | --- |
-| 文件日期 | 2026-10-31 |
+| 文件日期 | 2026-11-01 |
 | 文件狀態 | 已確認方向，作為後續重構依據 |
 | 適用範圍 | `/gis` 園區 GIS、官方三維建物、設施設備與即時 IoT 圖層 |
 | 參考專案 | `ianlkl11234s/mini-taiwan-learning-project` |
@@ -30,6 +30,7 @@
 - Demo 建築資料仍可供既有數位孿生與設施管理頁使用，但不代表真實城市建物，也不應出現在 GIS 城市場景。
 - 真實 IoT、告警與建物的關聯，必須等真實建物識別策略完成後再建立。
 - 下一階段的主要成果是「可閱讀、可操作、具層級的城市場景」，不是增加更多模擬方盒。
+- 正式展示環境不依賴政府 SceneServer 的即時可用性；官方服務作為批次同步來源，整理後的城市 tiles 由專案自己的物件儲存與 CDN 提供。
 
 ## 2. SpatialPulse 目前的 GIS 資料位置
 
@@ -39,7 +40,7 @@
 | --- | --- | --- |
 | Demo 設備、園區邊界與其他產品頁資料 | `src/data/campus.ts` | 只供既有設施管理與數位孿生 Demo 使用；GIS 不再載入 |
 | 底圖 Provider | `src/features/gis/catalog/basemaps.ts` | NLSC `EMAP16`、`PHOTO2`、來源標示與影像樣式 |
-| 臺北市官方 I3S | `src/features/gis/services/taipeiBuildings.ts` | 保存官方服務 URL、Provider 建立與安全欄位解析 |
+| 臺北市官方 I3S | `src/features/gis/services/taipeiBuildings.ts` | 固定使用 `CB_2025_20250825`、建立 Provider 與解析安全欄位；不使用舊版 fallback |
 | 城市圖層目錄 | `src/features/gis/catalog/layerCatalog.ts` | 圖層名稱、來源、類型、預設可見性與 UI metadata |
 | 城市相機 preset | `src/features/gis/scene/cameraPresets.ts` | 南港城市尺度的初始位置與定位行為 |
 | 圖層 Runtime | `src/features/gis/runtime/CesiumLayerManager.ts` | 統一載入、可見性、相機尺度、釋放與銷毀 |
@@ -59,6 +60,15 @@ public/data/*.3dtiles
 ```
 
 臺北市官方三維建物不存放在 Repo。Cesium 會依照相機位置與可見範圍，從官方 I3S SceneServer 動態取得 metadata、tiles 與 feature 資料。
+
+上述內容是目前 runtime 的狀態。目標架構已改為「完整來源定期同步、瀏覽器仍按視野串流」：原始快照與發布產物放在 Git 以外的資料儲存，Repo 只保存來源設定、處理腳本與可稽核 manifest。這不是把整個城市一次送到瀏覽器，而是把外部 runtime dependency 換成自己可控制的 CDN。
+
+可先執行以下命令盤點 I3S 階層，不下載 geometry 或 attributes：
+
+```bash
+npm run gis:inventory -- --source taipei-cadastral-2025
+npm run gis:inventory -- --source taipei-lod1-2017
+```
 
 ### 2.1 目前資料真實性
 

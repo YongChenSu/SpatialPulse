@@ -73,7 +73,7 @@ npm run server
 | 地理位置圖 | 內政部國土測繪中心 WMTS `EMAP16` | 真實公開圖資 |
 | 正射影像 | 內政部國土測繪中心 WMTS `PHOTO2` | 真實公開圖資 |
 | 中性城市圖 | SpatialPulse 本地 Globe | 不依賴外部圖磚 |
-| 三維產權建物 | 臺北市政府 I3S SceneServer | 真實公開圖資 |
+| 三維產權建物 | 臺北市政府 `CB_2025_20250825` I3S 1.10 | 真實公開圖資 |
 | 示範建築、設備與告警 | SpatialPulse scenario dataset | 模擬資料，不載入 GIS |
 
 GIS 目前只呈現可追溯的公開城市圖資。示範 IoT 數值不會宣稱為特定真實建物的營運資料，必須等建物 mapping 完成後才會重新接入。

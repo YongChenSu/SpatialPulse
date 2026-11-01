@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { isPickedI3SFeature, readOfficialBuildingFeature } from './taipeiBuildings'
+import {
+  isPickedI3SFeature, readOfficialBuildingFeature, TAIPEI_BUILDINGS_DATASET,
+  TAIPEI_BUILDINGS_I3S_URL,
+} from './taipeiBuildings'
 
 function createFeature(properties: Record<string, unknown>) {
   return {
@@ -8,6 +11,12 @@ function createFeature(properties: Record<string, unknown>) {
 }
 
 describe('Taipei official building feature parsing', () => {
+  it('uses the selected 2025 citywide dataset without a legacy fallback', () => {
+    expect(TAIPEI_BUILDINGS_DATASET).toBe('CB_2025_20250825')
+    expect(TAIPEI_BUILDINGS_I3S_URL).toContain('/CB_2025_20250825/SceneServer/layers/0')
+    expect(TAIPEI_BUILDINGS_I3S_URL).not.toContain('CadastralBuilding_2023')
+  })
+
   it('keeps only the fields needed by the city building detail UI', () => {
     const feature = createFeature({
       OBJECTID: 42,

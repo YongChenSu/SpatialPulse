@@ -51,7 +51,7 @@ export function GisPage() {
             </div>
             <div className="site-overview city-dataset-overview">
               <div className="site-overview__icon"><Building2 size={20} /></div>
-              <div><b>臺北市三維產權建物</b><span>官方 I3S Scene Layer</span></div>
+              <div><b>臺北市三維產權建物</b><span>CB_2025_20250825 · I3S 1.10</span></div>
               <em>REAL</em>
             </div>
             <div className="layer-section city-layer-section">
@@ -126,6 +126,7 @@ export function GisPage() {
               <div className="gis-panel-heading"><div><small>DATA PROVENANCE</small><h2>資料來源</h2></div><Database size={17} /></div>
               <dl>
                 <div><dt>三維建物</dt><dd>臺北市政府</dd></div>
+                <div><dt>資料版本</dt><dd>CB_2025_20250825</dd></div>
                 <div><dt>電子地圖</dt><dd>內政部國土測繪中心</dd></div>
                 <div><dt>座標系統</dt><dd>WGS84</dd></div>
               </dl>

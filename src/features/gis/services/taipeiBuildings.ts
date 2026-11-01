@@ -1,7 +1,8 @@
 import { I3SDataProvider } from 'cesium'
 import type { OfficialBuildingSelection } from '../../../types/gis'
 
-export const TAIPEI_BUILDINGS_I3S_URL = 'https://3d.land.gov.taipei/arcgis/rest/services/Hosted/CadastralBuilding_2023/SceneServer/layers/0'
+export const TAIPEI_BUILDINGS_DATASET = 'CB_2025_20250825'
+export const TAIPEI_BUILDINGS_I3S_URL = `https://3d.land.gov.taipei/arcgis/rest/services/Hosted/${TAIPEI_BUILDINGS_DATASET}/SceneServer/layers/0`
 
 interface PickedI3SFeature {
   getProperty: (name: string) => unknown
