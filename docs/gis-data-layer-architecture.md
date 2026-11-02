@@ -9,7 +9,7 @@
 
 ## 1. 文件目的
 
-目前 SpatialPulse 的 GIS 功能包含設備點位、NLSC 底圖，以及臺北市官方 I3S 三維產權建物。第一版以 Cesium Box 建立的五棟 Demo 建築並非真實建物，已決定從 GIS 場景與圖層選單移除，不再作為城市場景的一部分。
+目前 SpatialPulse 的 GIS 功能包含 NLSC 底圖、NLSC `114_A`（2025）臺北市分棟背景建物，以及 `CB_2025_20250825` 三維產權建物。第一版以 Cesium Box 建立的五棟 Demo 建築並非真實建物，已從 GIS 場景與圖層選單移除，不再作為城市場景的一部分。
 
 現階段不急著把模擬營運資料綁到任意一棟官方建物。應先把整個城市的底圖、建物、標籤、選取效果與縮放層級整理成一致的視覺系統，再進入真實建物識別與營運資料 mapping。GIS 主場景已由 `CampusMap` 改為 `CityScene`，並停止載入 Demo 園區邊界與設備點位；後續仍需把官方 Provider 的生命週期從 `CityScene.tsx` 拆入獨立 layer runtime。
 
@@ -26,7 +26,7 @@
 
 - GIS 頁面不再顯示五棟方盒造型的 Demo 建築。
 - 「3D 建築」圖層開關移除，避免使用者誤認為真實建物。
-- 臺北市官方 I3S 是目前唯一的城市級 3D 建物來源。
+- NLSC 與臺北市政府 I3S 是城市級 3D 建物來源；NLSC `114_A`（2025）負責完整城市量體，`CB_2025_20250825` 負責可查詢的產權模型。
 - Demo 建築資料仍可供既有數位孿生與設施管理頁使用，但不代表真實城市建物，也不應出現在 GIS 城市場景。
 - 真實 IoT、告警與建物的關聯，必須等真實建物識別策略完成後再建立。
 - 下一階段的主要成果是「可閱讀、可操作、具層級的城市場景」，不是增加更多模擬方盒。
@@ -34,19 +34,21 @@
 
 ## 2. SpatialPulse 目前的 GIS 資料位置
 
-目前專案沒有把大量 GIS 檔案下載到 Repo。資料主要分成「程式內 Demo 資料」與「外部服務串流資料」。
+大量 GIS 檔案已下載至本機 `data/raw` 並發布至 `data/processed`，兩者皆由 Git 忽略；Repo 只保存來源設定、處理腳本與小型 manifest。
 
 | 類型 | 目前位置 | 說明 |
 | --- | --- | --- |
 | Demo 設備、園區邊界與其他產品頁資料 | `src/data/campus.ts` | 只供既有設施管理與數位孿生 Demo 使用；GIS 不再載入 |
 | 底圖 Provider | `src/features/gis/catalog/basemaps.ts` | NLSC `EMAP16`、`PHOTO2`、來源標示與影像樣式 |
 | 臺北市官方 I3S | `src/features/gis/services/taipeiBuildings.ts` | 固定使用 `CB_2025_20250825`、建立 Provider 與解析安全欄位；不使用舊版 fallback |
+| 全市背景 I3S | `src/features/gis/services/taipeiContextBuildings.ts` | 使用 NLSC `114_A`（2025），停用 feature picking，只提供低對比城市量體 |
 | 城市圖層目錄 | `src/features/gis/catalog/layerCatalog.ts` | 圖層名稱、來源、類型、預設可見性與 UI metadata |
 | 城市相機 preset | `src/features/gis/scene/cameraPresets.ts` | 南港城市尺度的初始位置與定位行為 |
 | 圖層 Runtime | `src/features/gis/runtime/CesiumLayerManager.ts` | 統一載入、可見性、相機尺度、釋放與銷毀 |
 | 官方建物 Layer | `src/features/gis/layers/TaipeiOfficialBuildingsLayer.ts` | 管理 I3S Provider、樣式與不同尺度的 LOD |
+| 背景建物 Layer | `src/features/gis/layers/TaipeiContextBuildingsLayer.ts` | 管理全市 LOD1 Provider、背景樣式與較寬鬆的 LOD 策略 |
 | 圖層與選取狀態 | `src/features/gis/store/useCitySceneStore.ts` | 保存圖層開關、載入狀態、重試次數與目前選取項目 |
-| Cesium Viewer 與圖層生命週期 | `src/features/gis/scene/CityScene.tsx` | 建立 Viewer、底圖與官方 I3S；後續再拆入 Layer Manager |
+| Cesium Viewer 與圖層生命週期 | `src/features/gis/scene/CityScene.tsx` | 建立 Viewer 與底圖，並把兩個 I3S layer runtime 註冊至 Layer Manager |
 | GIS 型別 | `src/types/gis.ts` | 圖層 ID、底圖 ID、官方建物欄位與狀態型別 |
 | GIS 畫面與圖層控制 UI | `src/pages/GisPage.tsx` | 圖層開關、底圖切換與建物資訊面板 |
 
@@ -59,7 +61,7 @@ public/data/*.glb
 public/data/*.3dtiles
 ```
 
-臺北市官方三維建物不存放在 Repo。Cesium 會依照相機位置與可見範圍，從官方 I3S SceneServer 動態取得 metadata、tiles 與 feature 資料。
+臺北市官方三維建物不存放在 Git。開發環境可由本機 snapshot server 提供，Cesium 仍依照相機位置與可見範圍串流 metadata 與 geometry，而不是一次載入整份城市資料。
 
 上述內容是目前 runtime 的狀態。目標架構已改為「完整來源定期同步、瀏覽器仍按視野串流」：原始快照與發布產物放在 Git 以外的資料儲存，Repo 只保存來源設定、處理腳本與可稽核 manifest。這不是把整個城市一次送到瀏覽器，而是把外部 runtime dependency 換成自己可控制的 CDN。
 
@@ -67,7 +69,7 @@ public/data/*.3dtiles
 
 ```bash
 npm run gis:inventory -- --source taipei-cadastral-2025
-npm run gis:inventory -- --source taipei-lod1-2017
+npm run gis:inventory -- --source taipei-buildings-2025-nlsc
 ```
 
 ### 2.1 目前資料真實性
@@ -77,8 +79,9 @@ npm run gis:inventory -- --source taipei-lod1-2017
 ├── NLSC 底圖／正射影像
 │   └── 真實公開地理圖資
 ├── 臺北市官方 I3S 建物
-│   ├── 幾何與安全屬性來自官方服務
-│   └── 尚未與營運數據建立 mapping
+│   ├── NLSC 114_A（2025）：全市背景量體，不開放選取
+│   ├── CB_2025：產權建物與安全屬性查詢
+│   └── 兩者皆尚未與營運數據建立 mapping
 └── Demo 設備與園區邊界
     ├── 座標、名稱與營運數值為模擬資料
     └── 不載入 GIS；只保留於其他產品 Demo 頁面
@@ -456,9 +459,11 @@ Zustand 只應保存可序列化的使用者意圖與 UI 狀態：
 
 - [x] 建立 `CityScene`，完全退出 Demo 園區幾何與營運點位。
 - [x] 預設使用真實 NLSC 底圖與臺北市官方 I3S。
+- [x] 以 LOD1 全市背景 + CB2025 產權模型建立雙層建物場景。
 - [x] 建立南港城市尺度 camera preset。
 - [x] 定義城市、街廓與建物尺度的相機高度範圍。
-- 調整底圖、globe、fog、I3S 建物與選取狀態的視覺 token。
+- [x] 將背景建物設為低對比、不可選取，產權模型保留較高辨識度與查詢能力。
+- 調整選取狀態與不同底圖模式的視覺 token。
 - 建立標籤密度與營運 overlay 的 visibility policy。
 - 完成官方建物選取、來源說明、錯誤與 fallback 體驗。
 
@@ -477,9 +482,23 @@ Zustand 只應保存可序列化的使用者意圖與 UI 狀態：
 
 ### Phase D：建立資料 pipeline
 
-- 建立 `data/raw`、`data/processed` 與 `scripts/gis`。
-- 建立 schema validation 與 manifest generation。
+- [x] 建立 `data/raw`、`data/processed` 與 `scripts/gis`。
+- [x] 建立 I3S inventory、斷點續傳下載、完整性驗證與 publish pipeline。
+- [x] 建立本機 ArcGIS SceneServer-compatible route，驗證 Cesium 不連官方主機也可載入。
+- 建立 CDN publish、版本切換與 rollback 流程。
 - 將小型場域範圍與測試 fixture 從 TypeScript 逐步轉為具版本的 GeoJSON。
+
+#### Phase D 實測結果（2026-11-01）
+
+- `CB_2025_20250825` 包含 8 個 node pages、476 個階層節點與 475 個 mesh 節點。
+- 完整快照包含 17,100 個被驗證的資源，約 820 MB；Portal item 的 75.6 MB 不代表完整 REST snapshot 體積。
+- I3S node page 的 node `index` 不等於資源目錄 ID；下載器必須使用 `mesh.geometry.resource` 建立 `nodes/{resourceId}` 路徑。
+- Cesium 優先載入 Draco 壓縮的 `geometries/1`，不能只依 legacy node document 列出的 `geometries/0` 下載。
+- 本機首屏實測約 140 個 I3S 請求、10.4 MB response content-length，沒有官方 SceneServer 請求、404 或 rendering error。
+- NLSC `114_A` 清冊包含 1,329 個 node pages、85,001 個階層節點、73,065 個 mesh 節點與約 1.21 億個跨 LOD 頂點；5-node render PoC 下載 10 個 geometry/texture 資源，約 3.72 MB。完整容量仍需抽樣估算後再下載。
+- NLSC 少數 node 會公告實際回傳 406 的 texture；geometry 仍可渲染。下載器將這類 texture 記錄為 optional skip，其他資源錯誤仍視為 snapshot failure。
+- 雙層場景實測在 12 秒內分別產生 799 個 LOD1 請求與 143 個 CB2025 請求，沒有官方主機請求、失敗 response 或 console/rendering error。
+- `data/raw` 與 `data/processed` 都不進 Git；Repo 只保留 scripts、source catalog 與小型 manifest。
 
 ### Phase E：建立真實建物 mapping
 

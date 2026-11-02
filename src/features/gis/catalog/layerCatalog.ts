@@ -16,8 +16,20 @@ export interface CityLayerDefinition {
 
 export const cityLayerCatalog: readonly CityLayerDefinition[] = [
   {
+    id: 'contextBuildings',
+    label: '全市背景建物',
+    description: '國土測繪中心 2025 臺北市分棟建物模型',
+    group: 'official',
+    sourceType: 'i3s',
+    source: '國土測繪中心 · 114_A（2025）',
+    defaultVisible: true,
+    loadOnDemand: false,
+    icon: Building2,
+    badge: '2025',
+  },
+  {
     id: 'officialBuildings',
-    label: '臺北官方建物',
+    label: '2025 產權建物',
     description: '臺北市 2025 三維產權建物 Scene Layer',
     group: 'official',
     sourceType: 'i3s',

@@ -10,6 +10,7 @@ import {
 } from 'cesium'
 import { useEffect, useRef } from 'react'
 import { createBaseMapProvider, styleBaseMapLayer } from '../catalog/basemaps'
+import { TaipeiContextBuildingsLayer } from '../layers/TaipeiContextBuildingsLayer'
 import { TaipeiOfficialBuildingsLayer } from '../layers/TaipeiOfficialBuildingsLayer'
 import { CesiumLayerManager } from '../runtime/CesiumLayerManager'
 import { observeCameraScale } from '../runtime/cameraScalePolicy'
@@ -58,6 +59,7 @@ export function CityScene() {
     flyToNangangCity(viewer, 0)
 
     const layerManager = new CesiumLayerManager({ viewer })
+    layerManager.register('contextBuildings', () => new TaipeiContextBuildingsLayer())
     layerManager.register('officialBuildings', () => new TaipeiOfficialBuildingsLayer())
     layerManagerRef.current = layerManager
     const stopObservingScale = observeCameraScale(viewer, (scale) => {
@@ -118,6 +120,15 @@ export function CityScene() {
       }
     }
   }, [baseMap, fallbackToNeutral])
+
+  useEffect(() => {
+    const layerManager = layerManagerRef.current
+    if (!layerManager) return
+    void layerManager.setVisible('contextBuildings', layers.contextBuildings)
+      .catch((error: unknown) => {
+        console.error('Unable to load Taipei LOD1 context buildings', error)
+      })
+  }, [layers.contextBuildings])
 
   useEffect(() => {
     const layerManager = layerManagerRef.current

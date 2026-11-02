@@ -8,7 +8,7 @@ describe('city scene interaction store', () => {
     baseMapError: null,
     areaFocusRequest: 0,
     cameraScale: 'district',
-    layers: { officialBuildings: true },
+    layers: { contextBuildings: true, officialBuildings: true },
     officialBuildingsStatus: 'idle',
     officialBuildingsError: null,
     officialBuildingsRequest: 0,
@@ -17,6 +17,12 @@ describe('city scene interaction store', () => {
   it('toggles the official building layer', () => {
     useCitySceneStore.getState().toggleLayer('officialBuildings')
     expect(useCitySceneStore.getState().layers.officialBuildings).toBe(false)
+  })
+
+  it('toggles the citywide context building layer independently', () => {
+    useCitySceneStore.getState().toggleLayer('contextBuildings')
+    expect(useCitySceneStore.getState().layers.contextBuildings).toBe(false)
+    expect(useCitySceneStore.getState().layers.officialBuildings).toBe(true)
   })
 
   it('switches between official city base maps', () => {

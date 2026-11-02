@@ -51,7 +51,7 @@ export function GisPage() {
             </div>
             <div className="site-overview city-dataset-overview">
               <div className="site-overview__icon"><Building2 size={20} /></div>
-              <div><b>臺北市三維產權建物</b><span>CB_2025_20250825 · I3S 1.10</span></div>
+              <div><b>臺北市雙層建物場景</b><span>NLSC 2025 城市背景 + 2025 產權模型</span></div>
               <em>REAL</em>
             </div>
             <div className="layer-section city-layer-section">
@@ -66,8 +66,8 @@ export function GisPage() {
               {officialBuildingsStatus !== 'idle' && (
                 <div className={`official-layer-status ${officialBuildingsStatus}`}>
                   <span>
-                    {officialBuildingsStatus === 'loading' && '官方三維建物載入中…'}
-                    {officialBuildingsStatus === 'ready' && '臺北市官方 I3S 已載入'}
+                    {officialBuildingsStatus === 'loading' && '2025 產權建物載入中…'}
+                    {officialBuildingsStatus === 'ready' && '2025 產權建物 I3S 已載入'}
                     {officialBuildingsStatus === 'error' && (officialBuildingsError ?? '官方模型載入失敗')}
                   </span>
                   {officialBuildingsStatus === 'error' && <button type="button" onClick={retryOfficialBuildings}>重新載入</button>}
@@ -114,7 +114,8 @@ export function GisPage() {
                   <p>點擊模型即可查看門牌、樓層、用途與建材等公開欄位。</p>
                 </div>
                 <ul>
-                  <li><i />建物幾何：臺北市官方 I3S</li>
+                  <li><i />城市背景：NLSC 114_A（不可選取）</li>
+                  <li><i />產權建物：CB_2025（可選取）</li>
                   <li><i />底圖：內政部國土測繪中心</li>
                   <li><i />目前視角：{formatCameraScale(cameraScale)}</li>
                   <li className="pending"><i />營運資料：尚未建立 mapping</li>
@@ -126,7 +127,8 @@ export function GisPage() {
               <div className="gis-panel-heading"><div><small>DATA PROVENANCE</small><h2>資料來源</h2></div><Database size={17} /></div>
               <dl>
                 <div><dt>三維建物</dt><dd>臺北市政府</dd></div>
-                <div><dt>資料版本</dt><dd>CB_2025_20250825</dd></div>
+                <div><dt>城市背景</dt><dd>NLSC 114_A</dd></div>
+                <div><dt>產權模型</dt><dd>CB_2025_20250825</dd></div>
                 <div><dt>電子地圖</dt><dd>內政部國土測繪中心</dd></div>
                 <div><dt>座標系統</dt><dd>WGS84</dd></div>
               </dl>

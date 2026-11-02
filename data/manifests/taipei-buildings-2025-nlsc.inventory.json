@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-01T14:15:34.746Z",
+  "source": {
+    "id": "taipei-buildings-2025-nlsc",
+    "label": "NLSC Taipei individual building model 2025",
+    "dataset": "114_A",
+    "layerUrl": "https://i3s.nlsc.gov.tw/building/i3s/SceneServer/layers/30",
+    "role": "context"
+  },
+  "service": {
+    "name": "114_A",
+    "layerType": "3DObject",
+    "i3sVersion": "1.8",
+    "updatedAt": null,
+    "capabilities": [
+      "View",
+      "Query"
+    ],
+    "fullExtent": null,
+    "fieldNames": [
+      "OBJECTID",
+      "BUILD_ID",
+      "BUILDNAME",
+      "BUILDTYPE",
+      "BUILD_STR",
+      "M_SOURCE",
+      "SOURCE",
+      "SOURCE_DES",
+      "MDATE",
+      "BUILD_H",
+      "H_SOURCE",
+      "H_EXTRAC",
+      "BUILD_NO",
+      "NO_SOURCE",
+      "M_MDATE",
+      "MODEL_LOD",
+      "COUNTY",
+      "MODEL_NAME",
+      "CENT_E_97",
+      "CENT_N_97",
+      "C_FRAMEID"
+    ],
+    "portalItemSizeBytes": null,
+    "portalAccess": null,
+    "portalLicense": null
+  },
+  "hierarchy": {
+    "nodesPerPage": 64,
+    "pageCount": 1329,
+    "nodeCount": 85001,
+    "meshNodeCount": 73065,
+    "maxNodeIndex": 85000,
+    "featureCountAcrossLods": 0,
+    "vertexCountAcrossLods": 121354089,
+    "note": "Feature and vertex totals include multiple LOD representations and are not unique-building counts."
+  }
+}

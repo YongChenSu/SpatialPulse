@@ -1,5 +1,5 @@
 export type BuildingStatus = 'normal' | 'warning' | 'critical' | 'offline'
-export type GisLayerId = 'officialBuildings'
+export type GisLayerId = 'contextBuildings' | 'officialBuildings'
 export type BaseMapId = 'neutral' | 'context' | 'orthophoto'
 export type OfficialBuildingsStatus = 'idle' | 'loading' | 'ready' | 'error'
 export type CameraScale = 'city' | 'district' | 'building'

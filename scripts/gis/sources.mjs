@@ -7,11 +7,11 @@ export const gisSources = {
     portalItemUrl: 'https://3d.land.gov.taipei/portal/sharing/rest/content/items/b9ea8f7384554ece85f6089ec0cdf789',
     role: 'interactive',
   },
-  'taipei-lod1-2017': {
-    id: 'taipei-lod1-2017',
-    label: 'Taipei LOD1 context buildings 2017',
-    dataset: 'LOD1_2017',
-    layerUrl: 'https://historygis.udd.gov.taipei/arcgis/rest/services/Hosted/LOD1_2017/SceneServer/layers/0',
+  'taipei-buildings-2025-nlsc': {
+    id: 'taipei-buildings-2025-nlsc',
+    label: 'NLSC Taipei individual building model 2025',
+    dataset: '114_A',
+    layerUrl: 'https://i3s.nlsc.gov.tw/building/i3s/SceneServer/layers/30',
     role: 'context',
   },
 }
