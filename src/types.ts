@@ -29,3 +29,28 @@ export interface Telemetry {
   uptime: number
   updatedAt: string
 }
+
+export type FacilityKind = 'data-center' | 'office-tower'
+
+export interface FacilityProfile {
+  id: string
+  kind: FacilityKind
+  name: string
+  campus: string
+  subtitle: string
+  operatingMode: string
+  dataProvenance: string
+  floors: Floor[]
+  storeys: { aboveGround: number; basement: number }
+  assetSummary: { total: number; operating: number; attention: number }
+  health: { score: number; status: string; delta: string }
+  telemetry: Telemetry
+  alerts: Alert[]
+  powerTrend: number[]
+  simulation: {
+    powerFloor: number
+    coolingFloor: number
+    pueRange: [number, number]
+    websocket: boolean
+  }
+}

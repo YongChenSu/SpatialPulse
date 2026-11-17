@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { useFacilityStore } from '../store/useFacilityStore'
-import type { Telemetry } from '../types'
+import type { FacilityProfile, Telemetry } from '../types'
 
-export function useRealtime() {
+export function useRealtime(profile: FacilityProfile) {
   const updateTelemetry = useFacilityStore((state) => state.updateTelemetry)
 
   useEffect(() => {
@@ -15,26 +15,30 @@ export function useRealtime() {
         const current = useFacilityStore.getState().telemetry
         updateTelemetry({
           ...current,
-          power: Math.max(760, Math.round(current.power + (Math.random() - 0.48) * 18)),
-          cooling: Math.max(250, Math.round(current.cooling + (Math.random() - 0.5) * 8)),
-          pue: Number(Math.min(1.46, Math.max(1.3, current.pue + (Math.random() - 0.5) * 0.02)).toFixed(2)),
+          power: Math.max(profile.simulation.powerFloor, Math.round(current.power + (Math.random() - 0.48) * 18)),
+          cooling: Math.max(profile.simulation.coolingFloor, Math.round(current.cooling + (Math.random() - 0.5) * 8)),
+          pue: Number(Math.min(profile.simulation.pueRange[1], Math.max(profile.simulation.pueRange[0], current.pue + (Math.random() - 0.5) * 0.02)).toFixed(2)),
           updatedAt: new Date().toISOString(),
         })
       }, 3000)
     }
 
-    try {
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      socket = new WebSocket(`${protocol}//${window.location.host}/ws`)
-      socket.onmessage = (event) => updateTelemetry(JSON.parse(event.data) as Telemetry)
-      socket.onerror = startFallback
-      socket.onclose = startFallback
-    } catch {
+    if (!profile.simulation.websocket) {
       startFallback()
+    } else {
+      try {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        socket = new WebSocket(`${protocol}//${window.location.host}/ws`)
+        socket.onmessage = (event) => updateTelemetry(JSON.parse(event.data) as Telemetry)
+        socket.onerror = startFallback
+        socket.onclose = startFallback
+      } catch {
+        startFallback()
+      }
     }
 
     const connectionTimeout = window.setTimeout(() => {
-      if (!socket || socket.readyState !== WebSocket.OPEN) startFallback()
+      if (profile.simulation.websocket && (!socket || socket.readyState !== WebSocket.OPEN)) startFallback()
     }, 1200)
 
     return () => {
@@ -42,5 +46,5 @@ export function useRealtime() {
       if (fallbackTimer) window.clearInterval(fallbackTimer)
       socket?.close()
     }
-  }, [updateTelemetry])
+  }, [profile, updateTelemetry])
 }
