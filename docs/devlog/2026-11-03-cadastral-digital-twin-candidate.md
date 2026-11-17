@@ -3,7 +3,7 @@
 | 項目 | 內容 |
 | --- | --- |
 | 日期 | 2026-11-03 |
-| 狀態 | Candidate selected / implementation pending |
+| 狀態 | Phase 1 implemented / cadastral geometry pending |
 | Branch | `feat/smart-campus-gis` |
 | 資料來源 | 臺北市 `CB_2025_20250825` I3S、本機 snapshot、公開建築資料 |
 
@@ -170,3 +170,18 @@ UI 必須持續顯示 `Official Building Data` 與 `Simulated Operations`，避�
 ## 決策
 
 目前推薦以長虹雲端科技大樓作為第一個真實建物基底的 Digital Twin 案例。它不一定是 CB_2025 feature 數最多的門牌，但在資料量、建物規模、用途與作品敘事之間最平衡。
+
+## 2026-11-17 實作更新
+
+第一階段已新增獨立路由 `/buildings/chonghong-cloud/twin`，並保留原本 `/buildings/a1/twin`。兩個案例共用可擴充的 Facility Profile 架構，但各自擁有樓層、設備統計、KPI、告警、用電趨勢及即時資料策略。
+
+已完成：
+
+- 長虹雲端科技大樓 30F/B4 概念塔樓。
+- 30F、24F、18F、12F、6F、1F、B1、B4 重點監控區。
+- 辦公大樓用電、空調 COP、設備可用率與事件情境。
+- `PUBLIC PROFILE · CONCEPT MODEL · SIMULATED OPERATIONS` 資料來源標示。
+- A1 與長虹頁面切換 E2E，避免 store 資料交叉污染。
+- 將 React Three Fiber 場景中的互動標籤移至 DOM overlay，修正 React 19 場景切換錯誤。
+
+目前畫面中的塔樓是依公開樓層規模建立的概念模型，不是 `CB_2025` 測繪幾何。下一階段才會以使用執照 `110使字84` 聚合 533–539 號 features，建立產權模型的 focus、filter、highlight 與樓層 mapping。

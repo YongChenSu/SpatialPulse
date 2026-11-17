@@ -1,40 +1,41 @@
 import { Check, ChevronRight, CircleAlert, Clock3, Gauge, TrendingDown, Zap } from 'lucide-react'
-import { floors, powerTrend } from '../data/facility'
 import { useFacilityStore } from '../store/useFacilityStore'
+import type { FacilityProfile } from '../types'
 import { Sparkline } from './Sparkline'
 
-export function InsightPanel() {
+export function InsightPanel({ profile }: { profile: FacilityProfile }) {
   const telemetry = useFacilityStore((state) => state.telemetry)
   const alerts = useFacilityStore((state) => state.alerts)
   const acknowledge = useFacilityStore((state) => state.acknowledgeAlert)
   const selectFloor = useFacilityStore((state) => state.setSelectedFloor)
   const openAlerts = alerts.filter((alert) => !alert.acknowledged)
+  const isOffice = profile.kind === 'office-tower'
 
   return (
     <aside className="insight-panel">
       <section className="panel health-card">
         <div className="panel__title"><div><small>LIVE PERFORMANCE</small><h2>即時營運狀態</h2></div><span className="live"><i />LIVE</span></div>
         <div className="health-score">
-          <div className="gauge"><div><strong>92</strong><span>健康評分</span></div></div>
-          <div className="health-meta"><span><Check size={14} />系統運作正常</span><p>較上週提升 <b>2.4%</b></p><small><Clock3 size={12} />更新於 {new Date(telemetry.updatedAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</small></div>
+          <div className="gauge"><div><strong>{profile.health.score}</strong><span>健康評分</span></div></div>
+          <div className="health-meta"><span><Check size={14} />{profile.health.status}</span><p>{profile.health.delta.split(' ')[0]} <b>{profile.health.delta.split(' ').slice(1).join(' ')}</b></p><small><Clock3 size={12} />更新於 {new Date(telemetry.updatedAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</small></div>
         </div>
         <div className="kpi-grid">
-          <div><span><Gauge size={15} />PUE</span><b>{telemetry.pue}</b><small className="good"><TrendingDown size={11} /> 4.2%</small></div>
-          <div><span><Zap size={15} />即時功率</span><b>{telemetry.power}<em>kW</em></b><small>容量 {telemetry.capacity}%</small></div>
-          <div><span>冷卻用電</span><b>{telemetry.cooling}<em>kW</em></b><small>占比 34%</small></div>
-          <div><span>可用率</span><b>{telemetry.uptime}<em>%</em></b><small className="good">SLA 達標</small></div>
+          <div><span><Gauge size={15} />{isOffice ? '空調 COP' : 'PUE'}</span><b>{telemetry.pue}</b><small className="good"><TrendingDown size={11} /> {isOffice ? '效率佳' : '4.2%'}</small></div>
+          <div><span><Zap size={15} />即時需量</span><b>{telemetry.power}<em>kW</em></b><small>契約容量 {telemetry.capacity}%</small></div>
+          <div><span>{isOffice ? '空調用電' : '冷卻用電'}</span><b>{telemetry.cooling}<em>kW</em></b><small>占比 {isOffice ? '36' : '34'}%</small></div>
+          <div><span>設備可用率</span><b>{telemetry.uptime}<em>%</em></b><small className="good">SLA 達標</small></div>
         </div>
       </section>
       <section className="panel trend-card">
-        <div className="section-heading"><div><small>POWER CONSUMPTION</small><h3>即時用電趨勢</h3></div><button>12 小時⌄</button></div>
+        <div className="section-heading"><div><small>POWER CONSUMPTION</small><h3>{isOffice ? '全棟需量趨勢' : '即時用電趨勢'}</h3></div><button>12 小時⌄</button></div>
         <div className="trend-value"><b>{telemetry.power.toLocaleString()}</b><span>kW</span><em>−3.8% vs. 昨日</em></div>
-        <Sparkline values={[...powerTrend.slice(0, -1), telemetry.power]} />
+        <Sparkline values={[...profile.powerTrend.slice(0, -1), telemetry.power]} />
         <div className="chart-axis"><span>08:00</span><span>12:00</span><span>16:00</span><span>現在</span></div>
       </section>
       <section className="panel floor-card">
         <div className="section-heading"><div><small>FLOOR STATUS</small><h3>樓層環境</h3></div><button>全部 <ChevronRight size={13} /></button></div>
         <div className="floor-list">
-          {floors.map((floor) => <button key={floor.id} onClick={() => selectFloor(floor.id)}><b>{floor.label}</b><span>{floor.area}</span><em>{floor.temperature}°C</em><i className={`status status--${floor.status}`} /></button>)}
+          {profile.floors.map((floor) => <button key={floor.id} onClick={() => selectFloor(floor.id)}><b>{floor.label}</b><span>{floor.area}</span><em>{floor.temperature}°C</em><i className={`status status--${floor.status}`} /></button>)}
         </div>
       </section>
       <section className="panel alert-card">
