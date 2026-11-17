@@ -10,7 +10,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "gis:inventory": "NODE_EXTRA_CA_CERTS=./scripts/gis/certs/twca-secure-sha2-2023g3.pem node scripts/gis/inventory-i3s.mjs",
+    "gis:download": "NODE_EXTRA_CA_CERTS=./scripts/gis/certs/twca-secure-sha2-2023g3.pem node scripts/gis/download-i3s.mjs",
+    "gis:publish": "node scripts/gis/publish-i3s-snapshot.mjs",
+    "gis:validate": "node scripts/gis/validate-i3s-snapshot.mjs",
+    "gis:serve": "node scripts/gis/serve-i3s-snapshot.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.6",

@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-01T08:11:55.002Z",
+  "source": {
+    "id": "taipei-cadastral-2025",
+    "label": "Taipei cadastral buildings 2025",
+    "dataset": "CB_2025_20250825",
+    "layerUrl": "https://3d.land.gov.taipei/arcgis/rest/services/Hosted/CB_2025_20250825/SceneServer/layers/0",
+    "portalItemUrl": "https://3d.land.gov.taipei/portal/sharing/rest/content/items/b9ea8f7384554ece85f6089ec0cdf789",
+    "role": "interactive"
+  },
+  "service": {
+    "name": "CB_2025_20250825",
+    "layerType": "3DObject",
+    "i3sVersion": "1.10",
+    "updatedAt": "2025-08-25T03:06:40.000Z",
+    "capabilities": [
+      "View",
+      "Query"
+    ],
+    "fullExtent": {
+      "xmin": 121.4104574869306,
+      "xmax": 121.71961025917707,
+      "ymin": 24.96640208347078,
+      "ymax": 25.17618287310442,
+      "spatialReference": {
+        "wkid": 4326,
+        "latestWkid": 4326,
+        "vcsWkid": 5773,
+        "latestVcsWkid": 5773
+      },
+      "zmin": -20.23300843126942,
+      "zmax": 642.5070001785365
+    },
+    "fieldNames": [
+      "OBJECTID",
+      "建號母號",
+      "建號子號",
+      "是否為主要建物",
+      "附屬建物類型",
+      "面積",
+      "層次",
+      "高度",
+      "高度來源",
+      "收件年字號",
+      "登記日期",
+      "建物門牌",
+      "主要用途",
+      "主要建材",
+      "總面積",
+      "建物坐落地號",
+      "使用執照字號",
+      "建築完成日期",
+      "層數",
+      "縣市",
+      "段代碼",
+      "棟次",
+      "原始檔案",
+      "檔案路徑",
+      "地號",
+      "樓層高度",
+      "H",
+      "是否為主要建物_原始",
+      "附屬建物類型_原始",
+      "建號",
+      "夾層",
+      "MIN_grid_code"
+    ],
+    "portalItemSizeBytes": 75618504,
+    "portalAccess": "public",
+    "portalLicense": null
+  },
+  "hierarchy": {
+    "nodesPerPage": 64,
+    "pageCount": 8,
+    "nodeCount": 476,
+    "meshNodeCount": 475,
+    "maxNodeIndex": 475,
+    "featureCountAcrossLods": 218218,
+    "vertexCountAcrossLods": 17367753,
+    "note": "Feature and vertex totals include multiple LOD representations and are not unique-building counts."
+  }
+}

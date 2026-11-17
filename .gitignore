@@ -5,3 +5,8 @@ dist
 *.log
 test-results
 playwright-report
+
+# Generated GIS source snapshots and publish artifacts. Keep only manifests in Git.
+data/raw/
+data/processed/
+data/publish/

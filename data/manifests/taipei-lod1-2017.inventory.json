@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-01T13:14:29.265Z",
+  "source": {
+    "id": "taipei-lod1-2017",
+    "label": "Taipei LOD1 context buildings 2017",
+    "dataset": "LOD1_2017",
+    "layerUrl": "https://historygis.udd.gov.taipei/arcgis/rest/services/Hosted/LOD1_2017/SceneServer/layers/0",
+    "role": "context"
+  },
+  "service": {
+    "name": "LOD1_2017",
+    "layerType": "3DObject",
+    "i3sVersion": "1.7",
+    "updatedAt": "2020-12-28T21:44:26.000Z",
+    "capabilities": [
+      "Query"
+    ],
+    "fullExtent": null,
+    "fieldNames": [
+      "OBJECTID",
+      "屋頂高程",
+      "出入口高程",
+      "建物高度",
+      "樓層註記",
+      "建物類型"
+    ],
+    "portalItemSizeBytes": null,
+    "portalAccess": null,
+    "portalLicense": null
+  },
+  "hierarchy": {
+    "nodesPerPage": 64,
+    "pageCount": 48,
+    "nodeCount": 3064,
+    "meshNodeCount": 3063,
+    "maxNodeIndex": 3063,
+    "featureCountAcrossLods": 1568435,
+    "vertexCountAcrossLods": 119821614,
+    "note": "Feature and vertex totals include multiple LOD representations and are not unique-building counts."
+  }
+}
