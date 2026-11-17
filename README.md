@@ -2,6 +2,12 @@
 
 結合真實城市 Web GIS 與建築數位孿生的設施管理作品。CesiumJS 城市場景使用 NLSC 底圖與臺北市官方 I3S 三維建物；React Three Fiber 建築場景則以獨立 Demo 資料呈現樓層、設備與即時營運流程。
 
+## 開發紀錄
+
+- [Changelog](CHANGELOG.md)：已完成的功能與階段里程碑
+- [Devlog](docs/devlog/README.md)：研究過程、技術決策、驗證與下一步
+- [GIS 階段總結](docs/spatialpulse-gis-development-summary.md)：從 Demo 建築到真實臺北三維城市
+
 ## 功能亮點
 
 - CesiumJS 三維城市 GIS：臺北市官方 I3S 建物、建物選取與公開屬性
